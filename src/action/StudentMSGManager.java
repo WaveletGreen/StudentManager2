@@ -53,12 +53,40 @@ public class StudentMSGManager extends ActionSupport {
 	}
 
 	public String add() {
-		return SUCCESS;
+		boolean ctl = true;
+		if (studentsystem != null) {
+			if (studentsystem.getName() == null) {
+				addFieldError("nameError", "名字不能为空");
+				ctl = false;
+			} else if (studentsystem.getGrade() == null) {
+				addFieldError("gradeError", "年级不能为空");
+				ctl = false;
+			} else if (studentsystem.getMajor() == null) {
+				addFieldError("majorError", "专业不能为空");
+				ctl = false;
+			} else if (studentsystem.getAddress() == null) {
+				addFieldError("addressError", "地址能为空");
+				ctl = false;
+			} else if (studentsystem.getName() == null) {
+				addFieldError("nameError", "名字能为空");
+				ctl = false;
+			}
+			if (ctl)
+				return service.add(studentsystem);
+			else {
+				return INPUT;
+			}
+		}
+		return ERROR;
 	}
 
 	public String delete() {
-		return SUCCESS;
-
+		if (studentsystem != null && studentsystem.getSid() != null) {
+			studentsystem = (Studentsystem) service.getById(studentsystem, studentsystem.getSid());
+			service.delet(studentsystem);
+			return SUCCESS;
+		}
+		return ERROR;
 	}
 
 	public String update() {
@@ -72,13 +100,20 @@ public class StudentMSGManager extends ActionSupport {
 	}
 
 	public String getByPage() {
+		this.page.setStart(0);
+		this.page.setMaxResult(5);
+		studentList = service.getByPage("Studentsystem", page);
 		return SUCCESS;
-
 	}
+
 	public String say() {
 		Studentsystem studentsystem = new Studentsystem();
-		Studentsystem studentsystem2 = (Studentsystem) service.getById("Studentsystem", 2017020101);
-		System.out.println("---------" + studentsystem2.getName());
+		this.page.setStart(0);
+		this.page.setMaxResult(5);
+		studentList = service.getByPage("Studentsystem", page);
+		for (Studentsystem s : studentList) {
+			System.out.println("---------" + s.getName());
+		}
 		return SUCCESS;
 
 	}
