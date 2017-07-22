@@ -1,0 +1,19 @@
+@CHARSET "UTF-8";
+
+#main {
+	width: 680;
+	margin: 0 auto;
+}
+
+#header {
+	text-align: center;
+}
+
+#tableDiv {
+	width: 500;
+	margin: 0 auto;
+}
+*{
+	padding: 0;
+	margin: 0;
+}
