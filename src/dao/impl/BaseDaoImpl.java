@@ -101,6 +101,7 @@ public class BaseDaoImpl<T> implements BaseDao<T> {
 
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> getByPage(T t, Page page) {
 		String hql = "from " + t.toString();

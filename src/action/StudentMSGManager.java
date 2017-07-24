@@ -1,19 +1,14 @@
 package action;
 
 import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import com.opensymphony.xwork2.ActionSupport;
-
-import dao.BaseDao;
-import dao.impl.BaseDaoImpl;
 import entity.Studentsystem;
 import service.BaseService;
 import util.Page;
 
 @Service
+@SuppressWarnings(value = { "rawtypes", "unchecked", "serial" })
 public class StudentMSGManager extends ActionSupport {
 	private Page page;
 	private Studentsystem studentsystem;
@@ -100,21 +95,23 @@ public class StudentMSGManager extends ActionSupport {
 	}
 
 	public String getByPage() {
-		this.page.setStart(0);
-		this.page.setMaxResult(5);
-		studentList = service.getByPage("Studentsystem", page);
+		if (page != null) {
+			studentList = service.getByPage("Studentsystem", page);
+		} else {
+			this.page.setStart(0);
+			this.page.setMaxResult(5);
+			studentList = service.getByPage("Studentsystem", page);
+		}
 		return SUCCESS;
 	}
 
-	public String say() {
-		Studentsystem studentsystem = new Studentsystem();
+	public String init() {
+		if (this.page == null) {
+			this.page = new Page();
+		}
 		this.page.setStart(0);
 		this.page.setMaxResult(5);
 		studentList = service.getByPage("Studentsystem", page);
-		for (Studentsystem s : studentList) {
-			System.out.println("---------" + s.getName());
-		}
 		return SUCCESS;
-
 	}
 }

@@ -1,38 +1,91 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
-	xmlns:tx="http://www.springframework.org/schema/tx"
-
+	xmlns:aop="http://www.springframework.org/schema/aop" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:jdbc="http://www.springframework.org/schema/jdbc"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
 	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	http://www.springframework.org/schema/jdbc http://www.springframework.org/schema/jdbc/spring-jdbc-3.1.xsd
+	
 	">
-	<!-- 配置数据源 -->
+	<!-- 自动扫描 -->
+	<context:component-scan base-package="dao.impl,entity,action"></context:component-scan>
+	<!-- 开启自动代理 -->
+	<aop:aspectj-autoproxy proxy-target-class="true"></aop:aspectj-autoproxy>
+	<context:annotation-config />
+	<!-- hibernate 数据库配置 -->
+
+	<!-- 配置数据源 ，如果数据源在spring中写，则不需要hibernate.cfg.xml文件 -->
+	<!-- 或者直接将property name=configLocation配置数据源 -->
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<property name="url" value="jdbc:mysql://localhost:3306/root"></property>
 		<property name="username" value="root"></property>
 		<property name="password" value="1243093769llc"></property>
 		<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
 	</bean>
-	<!-- 配置hibernate的sessionFactory -->
+	<!-- 配置hibernate的sessionFactory ，是单例模式 -->
+	<!-- orm这个类用于处理sessionFactory -->
+
 	<bean id="sessionFactory"
-		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
+		scope="singleton">
+		<!-- 导向数据源，获取sessionFactory -->
 		<property name="dataSource">
 			<ref bean="dataSource" />
 		</property>
+		<!-- 配置hibernate的属性 -->
 		<property name="hibernateProperties">
 			<props>
+				<!-- 配置方言 -->
 				<prop key="hibernate.dialect">
 					org.hibernate.dialect.MySQLDialect
 				</prop>
+				<prop key="show_sql">true</prop>
+				<prop key="format_sql">true</prop>
 			</props>
 		</property>
+		<!-- 配置hibernate对象关联文件mapping -->
 		<property name="mappingResources">
 			<list>
+				<!-- 有多个映射文件配多个value值 -->
 				<value>entity/Studentsystem.hbm.xml</value>
 			</list>
 		</property>
 	</bean>
+	<!-- hibernate 数据库配置结束 -->
 
+	<!-- 配置事务 -->
+	<!-- 配置Spring声明式事务 -->
+	<bean id="transactionManager"
+		class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<tx:annotation-driven transaction-manager="transactionManager" />
+	<!-- 配置事务事务属性 -->
+	<tx:advice id="txAdvice" transaction-manager="transactionManager">
+		<tx:attributes>
+			<!-- 添加事务 -->
+			<tx:method name="add*" timeout="10" propagation="REQUIRED" />
+			<!-- 删除事务 -->
+			<tx:method name="delet*" timeout="10" propagation="REQUIRED" />
+			<!-- 更新事务 -->
+			<tx:method name="update" timeout="10" propagation="REQUIRED" />
+			<!-- 查找事务 -->
+			<tx:method name="get*" timeout="15" read-only="true" />
+			<tx:method name="*" />
+		</tx:attributes>
+	</tx:advice>
+	<!-- 配置事务切点，并把切点和事务属性关联起来 -->
+	<aop:config>
+		<!-- 配置切入点 -->
+		<aop:pointcut id="txPointcut" expression="execution(* *.impl.*.*(..))" />
+		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
+	</aop:config>
+	<!--配置事务结束 -->
+
+	<!--业务逻辑bean配置 -->
 	<!-- 具体的action -->
 	<bean id="Manager" class="action.StudentMSGManager" scope="prototype">
 		<property name="service" ref="baseService"></property>
@@ -50,7 +103,8 @@
 	<!-- 实体类 -->
 	<bean id="Studentsystem" class="entity.Studentsystem" scope="prototype"></bean>
 	<!-- 分页查询工具类 -->
-	<bean id="page" class="util.Page"></bean>
-	
-	
+	<bean id="page" class="util.Page" scope="prototype"></bean>
+
+	<!--业务逻辑bean配置结束 -->
+
 </beans>

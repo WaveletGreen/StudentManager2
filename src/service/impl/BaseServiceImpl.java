@@ -2,6 +2,8 @@ package service.impl;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import dao.BaseDao;
 import service.BaseService;
 import util.Page;
@@ -12,6 +14,8 @@ import util.Page;
  * @author Administrator
  *
  */
+@Service
+@SuppressWarnings(value = { "rawtypes", "unchecked" })
 public class BaseServiceImpl<T> implements BaseService<T> {
 	// dao实例使用注入方式
 	private BaseDao dao;

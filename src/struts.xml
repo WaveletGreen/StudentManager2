@@ -4,7 +4,7 @@
 	<package name="fanc" namespace="/" extends="struts-default">
 		<global-results>
 			<result name="error">
-				/index.jsp
+				/index.html
 			</result>
 			<result name="toIndex">
 				/index.html
